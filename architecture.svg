@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 820" role="img" aria-labelledby="title description">
+  <title id="title">Hyperliquid Collector：仓库结构与采集流程</title>
+  <desc id="description">左侧列出仓库文件和用途。右侧展示节点写出三个 JSONL 流，SDK 启动补读并监听文件变化，解析完整记录并交给回调；回调成功后推进断点并按配置清理，失败则返回错误。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0l10 5-10 5z" fill="#357568"/>
+    </marker>
+    <marker id="error-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0l10 5-10 5z" fill="#a44c3e"/>
+    </marker>
+    <style>
+      text { font-family: system-ui, -apple-system, "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #18342f; }
+      .title { font-size: 35px; font-weight: 750; fill: #fff; }
+      .subtitle { font-size: 16px; fill: #c3e7dd; }
+      .section { font-size: 20px; font-weight: 700; }
+      .heading { font-size: 17px; font-weight: 700; }
+      .body { font-size: 15px; fill: #36544e; }
+      .small { font-size: 13px; fill: #36544e; }
+      .mono { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 14px; }
+      .panel { fill: #fff; stroke: #cdded8; }
+      .card { fill: #eff8f4; stroke: #bdd8cf; }
+      .flow { fill: none; stroke: #357568; stroke-width: 2; marker-end: url(#arrow); }
+      .error-flow { fill: none; stroke: #a44c3e; stroke-width: 2; marker-end: url(#error-arrow); }
+    </style>
+  </defs>
+
+  <rect width="1040" height="820" rx="20" fill="#eaf2ee"/>
+  <path d="M20 0h1000a20 20 0 0 1 20 20v93H0V20A20 20 0 0 1 20 0z" fill="#153e37"/>
+  <text x="34" y="54" class="title">Hyperliquid Collector</text>
+  <text x="36" y="84" class="subtitle">Go SDK · 仓库结构与事件驱动采集</text>
+
+  <rect x="26" y="138" width="340" height="650" rx="16" class="panel"/>
+  <text x="48" y="174" class="section">01 / 仓库结构与职责</text>
+  <text x="48" y="204" class="mono">hyperliquid-collector/</text>
+  <path d="M54 219v507m0-484h14m-14 91h14m-14 91h14m-14 91h14m-14 91h14m-14 120h14" fill="none" stroke="#98baaf" stroke-width="2"/>
+
+  <text x="79" y="246" class="mono">collector.go</text>
+  <text x="79" y="271" class="body">SDK 入口、读取与解析 JSONL</text>
+  <text x="79" y="292" class="body">调用回调，推进已确认的文件偏移量</text>
+
+  <text x="79" y="337" class="mono">watch.go</text>
+  <text x="79" y="362" class="body">监听文件追加，发现新目录及文件</text>
+  <text x="79" y="383" class="body">通知溢出时重新扫描，不定时轮询</text>
+
+  <text x="79" y="428" class="mono">files.go</text>
+  <text x="79" y="453" class="body">发现并排序小时文件</text>
+  <text x="79" y="474" class="body">读写断点，按保留策略清理源文件</text>
+
+  <text x="79" y="519" class="mono">collector_test.go</text>
+  <text x="79" y="544" class="body">验证采集、续读、跨天和清理保护</text>
+
+  <text x="79" y="610" class="mono">go.mod / go.sum</text>
+  <text x="79" y="635" class="body">模块声明、依赖与校验和</text>
+
+  <text x="79" y="730" class="mono">README.md / architecture.svg</text>
+  <text x="79" y="755" class="body">接入说明、架构图与 LICENSE</text>
+
+  <rect x="386" y="138" width="628" height="650" rx="16" class="panel"/>
+  <text x="410" y="174" class="section">02 / 数据流与故障路径</text>
+
+  <rect x="410" y="195" width="580" height="114" rx="12" class="card"/>
+  <text x="428" y="222" class="heading">节点落盘：三个按小时追加的 JSONL 流</text>
+  <text x="428" y="247" class="mono">node_fills_streaming</text>
+  <text x="428" y="268" class="mono">misc_events_streaming</text>
+  <text x="428" y="289" class="mono">node_twap_statuses_streaming</text>
+  <text x="970" y="289" class="mono" text-anchor="end">hourly/YYYYMMDD/H</text>
+
+  <path d="M700 309v22" class="flow"/>
+  <rect x="410" y="332" width="580" height="70" rx="12" class="card"/>
+  <text x="428" y="359" class="heading">启动补读；运行中由文件通知触发</text>
+  <text x="428" y="383" class="body">加载已保存的断点，监听追加、跨小时和跨天的新文件</text>
+
+  <path d="M700 402v22" class="flow"/>
+  <rect x="410" y="425" width="580" height="70" rx="12" class="card"/>
+  <text x="428" y="452" class="heading">从文件偏移量读取完整的新行</text>
+  <text x="428" y="476" class="body">不消费半行；解析区块号、时间和原始事件</text>
+
+  <path d="M700 495v22" class="flow"/>
+  <rect x="410" y="518" width="580" height="66" rx="12" class="card"/>
+  <text x="428" y="545" class="heading">应用处理 Handler(ctx, Record)</text>
+  <text x="428" y="568" class="body">调用方决定写数据库、消息队列或其他目标</text>
+
+  <path d="M410 460h-10v157h448v21" class="error-flow" stroke-dasharray="4 4"/>
+  <path d="M700 584v16H551v38" class="flow"/>
+  <path d="M700 584v16h148v38" class="error-flow"/>
+  <text x="563" y="615" class="small">回调成功</text>
+  <text x="858" y="615" class="small">回调失败</text>
+
+  <rect x="410" y="639" width="282" height="82" rx="12" class="card"/>
+  <text x="428" y="666" class="heading">推进并保存断点</text>
+  <text x="428" y="690" class="body">本轮成功后可清理已读完的旧文件</text>
+  <text x="428" y="709" class="small">最新小时保留；清理默认关闭</text>
+
+  <rect x="709" y="639" width="281" height="82" rx="12" fill="#fff4ef" stroke="#e4c2b7"/>
+  <text x="727" y="666" class="heading">返回错误，不跳过失败行</text>
+  <text x="727" y="690" class="body">解析或回调失败时退出 Run</text>
+  <text x="727" y="709" class="small">已确认的行仍可保存断点</text>
+
+  <text x="410" y="756" class="small">断点按文件路径和字节偏移量保存；同一区块可能包含多条记录。</text>
+</svg>
